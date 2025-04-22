@@ -1,13 +1,57 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'https://itx-frontend-test.onrender.com/api';
+
+const getProductsFromCache = () => {
+    const cachedData = Cookies.get('productsData');
+    const cachedTimestamp = Cookies.get('productsTimestamp');
+
+    if (cachedData && cachedTimestamp) {
+
+        const currentTime = new Date().getTime();
+        const cachedTime = parseInt(cachedTimestamp);
+        const ONE_HOUR = 60 * 60 * 1000;
+
+        if (currentTime - cachedTime < ONE_HOUR) {
+            return JSON.parse(cachedData);
+        }
+    }
+    return null;
+};
+
+const getProductByIdFromCache = (id) => {
+    const cachedData = Cookies.get(`product_${id}`);
+    const cachedTimestamp = Cookies.get(`product_${id}_timestamp`);
+
+    if (cachedData && cachedTimestamp) {
+        const currentTime = new Date().getTime();
+        const cachedTime = parseInt(cachedTimestamp);
+        const ONE_HOUR = 60 * 60 * 1000;
+
+        if (currentTime - cachedTime < ONE_HOUR) {
+            return JSON.parse(cachedData);
+        }
+    }
+    return null;
+};
 
 export const fetchProducts = createAsyncThunk(
     'products/fetchProducts',
     async (_, { rejectWithValue }) => {
         try {
+            const cachedProducts = getProductsFromCache();
+            if (cachedProducts) {
+                return cachedProducts;
+            }
+
             const response = await axios.get(`${API_BASE_URL}/product`);
+
+            const currentTime = new Date().getTime();
+            Cookies.set('productsData', JSON.stringify(response.data), { expires: 1 / 24 });
+            Cookies.set('productsTimestamp', currentTime.toString(), { expires: 1 / 24 });
+
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -19,7 +63,17 @@ export const fetchProductById = createAsyncThunk(
     'products/fetchProductById',
     async (id, { rejectWithValue }) => {
         try {
+            const cachedProduct = getProductByIdFromCache(id);
+            if (cachedProduct) {
+                return cachedProduct;
+            }
+
             const response = await axios.get(`${API_BASE_URL}/product/${id}`);
+
+            const currentTime = new Date().getTime();
+            Cookies.set(`product_${id}`, JSON.stringify(response.data), { expires: 1 / 24 });
+            Cookies.set(`product_${id}_timestamp`, currentTime.toString(), { expires: 1 / 24 });
+
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -72,7 +126,6 @@ const productSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.payload;
             })
-
 
             .addCase(fetchProductById.pending, (state) => {
                 state.status = 'loading';
