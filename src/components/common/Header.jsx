@@ -1,12 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Badge, IconButton, Box } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import CartDropdown from '../cart/CartDropdown';
 
 const Header = () => {
     const cartItems = useSelector(state => state.cart.items);
     const location = useLocation();
+
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+
+    const handleCartClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     const getBreadcrumbs = () => {
         const paths = location.pathname.split('/').filter(p => p);
@@ -19,6 +31,7 @@ const Header = () => {
                     <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
                         Inicio
                     </Link>
+                    {' > Detalle del producto'}
                 </>
             );
         }
@@ -35,10 +48,10 @@ const Header = () => {
                     to="/"
                     sx={{
                         flexGrow: 0,
+                        marginRight: 4,
                         textDecoration: 'none',
                         color: 'inherit',
-                        fontWeight: 'bold',
-                        display: 'flex'
+                        fontWeight: 'bold'
                     }}
                 >
                     Mobile Shop
@@ -50,16 +63,26 @@ const Header = () => {
                     justifyContent: 'flex-start',
                     paddingLeft: '5%'
                 }}>
-                    <Typography color="inherit">
+                    <Typography variant="body2" color="inherit">
                         {getBreadcrumbs()}
                     </Typography>
                 </Box>
 
-                <IconButton color="inherit" aria-label="carrito de compras">
+                <IconButton
+                    color="inherit"
+                    aria-label="carrito de compras"
+                    onClick={handleCartClick}
+                >
                     <Badge badgeContent={cartItems.length} color="error" showZero>
                         <ShoppingCartIcon />
                     </Badge>
                 </IconButton>
+
+                <CartDropdown
+                    anchorEl={anchorEl}
+                    open={open}
+                    handleClose={handleClose}
+                />
             </Toolbar>
         </AppBar>
     );
