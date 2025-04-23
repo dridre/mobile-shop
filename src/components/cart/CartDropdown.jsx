@@ -10,9 +10,8 @@ import {
     Divider,
     Popover,
     IconButton,
-    Avatar
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete'; // Importando el icono de papelera
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearCartItems, removeCartItem } from '../../redux/slices/cartSlice';
 

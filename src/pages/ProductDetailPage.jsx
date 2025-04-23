@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Container, Typography, CircularProgress } from '@mui/material';
+import { Box, Container, Typography, CircularProgress, Button } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { fetchProductById } from '../redux/slices/productSlice';
 import ProductImage from '../components/ProductDetail/ProductImage';
 import ProductDescription from '../components/ProductDetail/ProductDescription';
@@ -57,14 +58,27 @@ const ProductDetailPage = () => {
 
     return (
         <Container sx={{ py: 4, height: '90vh', display: 'flex', flexDirection: 'column' }}>
-            {/* Título centrado en la parte superior */}
-            <Box mb={4} width="100%" display="flex" justifyContent="center">
+            <Box
+                display="flex"
+                width="100%"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={4}
+            >
+                <Button
+                    component={Link}
+                    to="/"
+                    startIcon={<ArrowBackIcon />}
+                    sx={{ alignSelf: 'flex-start' }}
+                >
+                    Volver a productos
+                </Button>
                 <Typography variant="h4" component="h1" fontWeight="bold">
                     {selectedProduct.brand} - {selectedProduct.model}
                 </Typography>
+                <Box width="130px" />
             </Box>
 
-            {/* Contenido principal */}
             <Box display="flex" width="100%" flex="1" justifyContent="center" alignItems="center">
                 <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="100%">
                     <ProductImage product={selectedProduct} />
