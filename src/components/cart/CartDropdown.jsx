@@ -8,8 +8,11 @@ import {
     ListItemText,
     Button,
     Divider,
-    Popover
+    Popover,
+    IconButton,
+    Avatar
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete'; // Importando el icono de papelera
 import { useSelector, useDispatch } from 'react-redux';
 import { clearCartItems, removeCartItem } from '../../redux/slices/cartSlice';
 
@@ -57,17 +60,38 @@ const CartDropdown = ({ anchorEl, open, handleClose }) => {
                                 <React.Fragment key={index}>
                                     <ListItem
                                         secondaryAction={
-                                            <Button
+                                            <IconButton
                                                 size="small"
                                                 color="error"
                                                 onClick={(e) => handleRemoveItem(index, e)}
+                                                edge="end"
                                             >
-                                                Eliminar
-                                            </Button>
+                                                <DeleteIcon />
+                                            </IconButton>
                                         }
                                     >
+                                        <Box
+                                            sx={{
+                                                mr: 2,
+                                                width: 50,
+                                                height: 50,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                        >
+                                            <img
+                                                src={item.img}
+                                                alt={item.model}
+                                                style={{
+                                                    maxWidth: '100%',
+                                                    maxHeight: '100%',
+                                                    objectFit: 'contain'
+                                                }}
+                                            />
+                                        </Box>
                                         <ListItemText
-                                            primary={`ID: ${item.id}`}
+                                            primary={`${item.brand} - ${item.model}`}
                                             secondary={`Color: ${item.colorCode}, Almacenamiento: ${item.storageCode}`}
                                         />
                                     </ListItem>

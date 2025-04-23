@@ -11,7 +11,6 @@ const Header = () => {
     const location = useLocation();
     const dispatch = useDispatch();
 
-    // Change from currentProduct to selectedProduct to match your Redux state
     const selectedProduct = useSelector(state => state.products.selectedProduct);
 
     const [anchorEl, setAnchorEl] = useState(null);

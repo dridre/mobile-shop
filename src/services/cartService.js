@@ -28,7 +28,10 @@ const CartService = {
             const cartItem = {
                 id: product.id,
                 colorCode,
-                storageCode
+                storageCode,
+                brand: product.brand,
+                model: product.model,
+                img: product.imgUrl
             };
 
             await CartCache.addItemToCart(cartItem);
