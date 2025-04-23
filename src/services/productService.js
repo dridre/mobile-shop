@@ -46,21 +46,6 @@ const ProductService = {
         }
     },
 
-    addToCart: async (productId, colorCode, storageCode) => {
-        try {
-            const response = await axios.post(`${API_BASE_URL}/cart`, {
-                id: productId,
-                colorCode,
-                storageCode
-            });
-
-            return response.data;
-        } catch (error) {
-            console.error('Error al añadir al carrito:', error);
-            throw error;
-        }
-    },
-
     clearProductsCache: async () => {
         return ProductCache.clearAllProductsCache();
     }
