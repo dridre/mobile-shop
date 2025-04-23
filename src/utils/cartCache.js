@@ -140,7 +140,10 @@ const CartCache = {
                     const cartItems = items.map(item => ({
                         id: item.productId,
                         colorCode: item.colorCode,
-                        storageCode: item.storageCode
+                        storageCode: item.storageCode,
+                        brand: item.brand,
+                        model: item.model,
+                        img: item.img
                     }));
 
                     resolve(cartItems);
