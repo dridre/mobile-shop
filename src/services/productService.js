@@ -2,13 +2,6 @@ import axios from 'axios';
 import ProductCache from '../utils/productCache.js';
 
 const API_BASE_URL = 'https://itx-frontend-test.onrender.com/api';
-const PAGE_SIZE = 24;
-
-const paginateData = (data, page, pageSize) => {
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    return data.slice(startIndex, endIndex);
-};
 
 const ProductService = {
     init: async () => {
@@ -34,19 +27,6 @@ const ProductService = {
         }
     },
 
-    getProductsPaginated: async (page = 1) => {
-        try {
-            const allProducts = await ProductService.getAllProducts();
-            return {
-                data: paginateData(allProducts, page, PAGE_SIZE),
-                totalCount: allProducts.length
-            };
-        } catch (error) {
-            console.error('Error al obtener productos paginados:', error);
-            throw error;
-        }
-    },
-
     getProductById: async (productId) => {
         try {
             const cachedProduct = await ProductCache.getProductDetails(productId);
@@ -62,6 +42,21 @@ const ProductService = {
             return response.data;
         } catch (error) {
             console.error(`Error al obtener producto ${productId}:`, error);
+            throw error;
+        }
+    },
+
+    addToCart: async (productId, colorCode, storageCode) => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/cart`, {
+                id: productId,
+                colorCode,
+                storageCode
+            });
+
+            return response.data;
+        } catch (error) {
+            console.error('Error al añadir al carrito:', error);
             throw error;
         }
     },

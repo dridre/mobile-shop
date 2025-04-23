@@ -5,25 +5,10 @@ export const fetchProducts = createAsyncThunk(
     'products/fetchProducts',
     async (_, { rejectWithValue }) => {
         try {
-            const result = await ProductService.getProductsPaginated(1);
-            return result;
+            const products = await ProductService.getAllProducts();
+            return products;
         } catch (error) {
             return rejectWithValue(error.response?.data || 'Error al cargar productos');
-        }
-    }
-);
-
-export const fetchMoreProducts = createAsyncThunk(
-    'products/fetchMoreProducts',
-    async (page, { rejectWithValue }) => {
-        try {
-            const result = await ProductService.getProductsPaginated(page);
-            return {
-                ...result,
-                page
-            };
-        } catch (error) {
-            return rejectWithValue(error.response?.data || 'Error al cargar más productos');
         }
     }
 );
@@ -39,26 +24,12 @@ export const fetchProductById = createAsyncThunk(
     }
 );
 
-export const addProductToCart = createAsyncThunk(
-    'products/addProductToCart',
-    async ({ productId, colorCode, storageCode }, { rejectWithValue }) => {
-        try {
-            return await ProductService.addToCart(productId, colorCode, storageCode);
-        } catch (error) {
-            return rejectWithValue(error.response?.data || 'Error al añadir el producto al carrito');
-        }
-    }
-);
-
 const initialState = {
     items: [],
-    allProductsCount: 0,
     selectedProduct: null,
     filteredItems: [],
     searchTerm: '',
-    status: 'idle',          // 'idle' | 'loading' | 'loading-more' | 'succeeded' | 'failed'
-    currentPage: 1,
-    hasMore: true,
+    status: 'idle',          // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
     cartCount: 0,
 };
@@ -83,12 +54,7 @@ const productSlice = createSlice({
         clearSelectedProduct: (state) => {
             state.selectedProduct = null;
         },
-        resetPagination: (state) => {
-            state.currentPage = 1;
-            state.hasMore = true;
-        },
         clearCache: () => {
-
             ProductService.clearProductsCache();
         }
     },
@@ -99,53 +65,14 @@ const productSlice = createSlice({
             })
             .addCase(fetchProducts.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.items = action.payload.data;
-                state.filteredItems = action.payload.data;
-                state.allProductsCount = action.payload.totalCount;
-                state.currentPage = 1;
-                state.hasMore = state.items.length < action.payload.totalCount;
+                state.items = action.payload;
+                state.filteredItems = action.payload;
                 state.error = null;
             })
             .addCase(fetchProducts.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
             })
-
-            .addCase(fetchMoreProducts.pending, (state) => {
-                state.status = 'loading-more';
-            })
-            .addCase(fetchMoreProducts.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-
-                if (action.payload.page === 1) {
-                    state.items = action.payload.data;
-                } else {
-                    const existingIds = new Set(state.items.map(p => p.id));
-                    const uniqueNewProducts = action.payload.data.filter(p => !existingIds.has(p.id));
-                    state.items = [...state.items, ...uniqueNewProducts];
-                }
-
-                state.currentPage = action.payload.page;
-
-                if (state.searchTerm) {
-                    const term = state.searchTerm.toLowerCase();
-                    state.filteredItems = state.items.filter(
-                        item =>
-                            item.brand.toLowerCase().includes(term) ||
-                            item.model.toLowerCase().includes(term)
-                    );
-                } else {
-                    state.filteredItems = state.items;
-                }
-
-                state.hasMore = state.items.length < action.payload.totalCount;
-                state.error = null;
-            })
-            .addCase(fetchMoreProducts.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.payload;
-            })
-
             .addCase(fetchProductById.pending, (state) => {
                 state.status = 'loading';
             })
@@ -158,23 +85,12 @@ const productSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.payload;
             })
-
-            .addCase(addProductToCart.pending, (state) => {
-
-            })
-            .addCase(addProductToCart.fulfilled, (state, action) => {
-                state.cartCount = action.payload.count;
-            })
-            .addCase(addProductToCart.rejected, (state, action) => {
-                state.error = action.payload;
-            });
     },
 });
 
 export const {
     setSearchTerm,
     clearSelectedProduct,
-    resetPagination,
     clearCache
 } = productSlice.actions;
 

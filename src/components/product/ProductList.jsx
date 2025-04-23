@@ -1,24 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Grid, Box, Typography, CircularProgress } from '@mui/material';
 import ProductCard from './ProductCard';
 import { useSelector, useDispatch } from 'react-redux';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { fetchMoreProducts, fetchProducts } from '../../redux/slices/productSlice';
+import { fetchProducts } from '../../redux/slices/productSlice';
 
 const ProductList = () => {
-    const { filteredItems, status, error, hasMore } = useSelector(state => state.products);
-    const [page, setPage] = useState(1);
+    const { filteredItems, status, error } = useSelector(state => state.products);
     const dispatch = useDispatch();
 
+    useEffect(() => {
+        if (status === 'idle') {
+            dispatch(fetchProducts());
+        }
+    }, [status, dispatch]);
 
-
-    const fetchMoreData = () => {
-        const nextPage = page + 1;
-        setPage(nextPage);
-        dispatch(fetchMoreProducts(nextPage));
-    };
-
-    if (status === 'loading' && page === 1) {
+    if (status === 'loading') {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
                 <CircularProgress />
@@ -26,7 +22,7 @@ const ProductList = () => {
         );
     }
 
-    if (status === 'failed' && !filteredItems.length) {
+    if (status === 'failed') {
         return (
             <Box sx={{ p: 3, textAlign: 'center' }}>
                 <Typography color="error">
@@ -47,31 +43,13 @@ const ProductList = () => {
     }
 
     return (
-        <InfiniteScroll
-            dataLength={filteredItems.length}
-            next={fetchMoreData}
-            hasMore={hasMore}
-            loader={
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                    <CircularProgress size={30} />
-                </Box>
-            }
-            endMessage={
-                <Box sx={{ p: 3, textAlign: 'center' }}>
-                    <Typography variant="body2" color="text.secondary">
-                        No hay más productos para mostrar
-                    </Typography>
-                </Box>
-            }
-        >
-            <Grid container spacing={3}>
-                {filteredItems.map(product => (
-                    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 3 }} key={product.id}>
-                        <ProductCard product={product} />
-                    </Grid>
-                ))}
-            </Grid>
-        </InfiniteScroll>
+        <Grid container spacing={3}>
+            {filteredItems.map(product => (
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 3 }} key={product.id}>
+                    <ProductCard product={product} />
+                </Grid>
+            ))}
+        </Grid>
     );
 };
 
