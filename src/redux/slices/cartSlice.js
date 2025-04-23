@@ -1,42 +1,66 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import CartService from '../../services/cartService';
 
-const API_BASE_URL = 'https://itx-frontend-test.onrender.com/api';
-
-const getInitialCart = () => {
-    const savedCart = Cookies.get('cartItems');
-    return savedCart ? JSON.parse(savedCart) : [];
+const loadInitialItems = async () => {
+    await CartService.init();
+    return CartService.getCartItems();
 };
-
-const initialItems = getInitialCart();
 
 export const addToCart = createAsyncThunk(
     'cart/addToCart',
     async ({ product, colorCode, storageCode }, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/cart`, {
-                id: product.id,
-                colorCode,
-                storageCode
-            });
-
-            return {
-                apiResponse: response.data,
-                cartItem: {
-                    id: product.id,
-                    colorCode,
-                    storageCode,
-                }
-            };
+            return await CartService.addToCart(product, colorCode, storageCode);
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            return rejectWithValue(error.response?.data || 'Error al añadir al carrito');
+        }
+    }
+);
+
+export const removeCartItem = createAsyncThunk(
+    'cart/removeItem',
+    async (index, { rejectWithValue }) => {
+        try {
+            const success = await CartService.removeFromCart(index);
+            if (success) {
+                return index;
+            }
+            return rejectWithValue('Error al eliminar del carrito');
+        } catch (error) {
+            return rejectWithValue(error.message || 'Error al eliminar del carrito');
+        }
+    }
+);
+
+export const clearCartItems = createAsyncThunk(
+    'cart/clearItems',
+    async (_, { rejectWithValue }) => {
+        try {
+            const success = await CartService.clearCart();
+            if (success) {
+                return true;
+            }
+            return rejectWithValue('Error al limpiar el carrito');
+        } catch (error) {
+            return rejectWithValue(error.message || 'Error al limpiar el carrito');
+        }
+    }
+);
+
+export const initializeCart = createAsyncThunk(
+    'cart/initialize',
+    async (_, { rejectWithValue }) => {
+        try {
+            const items = await loadInitialItems();
+            return items;
+        } catch (error) {
+            return rejectWithValue(error.message || 'Error al inicializar el carrito');
         }
     }
 );
 
 const initialState = {
-    items: initialItems,
+    items: [],
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
 };
@@ -44,39 +68,61 @@ const initialState = {
 const cartSlice = createSlice({
     name: 'cart',
     initialState,
-    reducers: {
-        removeFromCart: (state, action) => {
-            const index = action.payload;
-            state.items.splice(index, 1);
-
-            Cookies.set('cartItems', JSON.stringify(state.items), { expires: 1 / 24 });
-        },
-        clearCart: (state) => {
-            state.items = [];
-
-            Cookies.remove('cartItems');
-        }
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder
+            .addCase(initializeCart.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(initializeCart.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.items = action.payload;
+                state.error = null;
+            })
+            .addCase(initializeCart.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload;
+            })
+
             .addCase(addToCart.pending, (state) => {
                 state.status = 'loading';
             })
             .addCase(addToCart.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-
                 state.items.push(action.payload.cartItem);
-
-                Cookies.set('cartItems', JSON.stringify(state.items), { expires: 1 / 24 });
-
                 state.error = null;
             })
             .addCase(addToCart.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload;
+            })
+
+            .addCase(removeCartItem.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(removeCartItem.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.items.splice(action.payload, 1);
+                state.error = null;
+            })
+            .addCase(removeCartItem.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload;
+            })
+
+            .addCase(clearCartItems.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(clearCartItems.fulfilled, (state) => {
+                state.status = 'succeeded';
+                state.items = [];
+                state.error = null;
+            })
+            .addCase(clearCartItems.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
             });
     },
 });
 
-export const { removeFromCart, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

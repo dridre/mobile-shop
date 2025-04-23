@@ -11,7 +11,7 @@ import {
     Popover
 } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
-import { removeFromCart, clearCart } from '../../redux/slices/cartSlice';
+import { clearCartItems, removeCartItem } from '../../redux/slices/cartSlice';
 
 const CartDropdown = ({ anchorEl, open, handleClose }) => {
     const dispatch = useDispatch();
@@ -19,12 +19,12 @@ const CartDropdown = ({ anchorEl, open, handleClose }) => {
 
     const handleRemoveItem = (index, event) => {
         event.stopPropagation();
-        dispatch(removeFromCart(index));
+        dispatch(removeCartItem(index));
     };
 
     const handleClearCart = (event) => {
         event.stopPropagation();
-        dispatch(clearCart());
+        dispatch(clearCartItems());
     };
 
     return (

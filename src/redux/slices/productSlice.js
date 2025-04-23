@@ -1,60 +1,29 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-
-const API_BASE_URL = 'https://itx-frontend-test.onrender.com/api';
-
-const getProductsFromCache = () => {
-    const cachedData = Cookies.get('productsData');
-    const cachedTimestamp = Cookies.get('productsTimestamp');
-
-    if (cachedData && cachedTimestamp) {
-
-        const currentTime = new Date().getTime();
-        const cachedTime = parseInt(cachedTimestamp);
-        const ONE_HOUR = 60 * 60 * 1000;
-
-        if (currentTime - cachedTime < ONE_HOUR) {
-            return JSON.parse(cachedData);
-        }
-    }
-    return null;
-};
-
-const getProductByIdFromCache = (id) => {
-    const cachedData = Cookies.get(`product_${id}`);
-    const cachedTimestamp = Cookies.get(`product_${id}_timestamp`);
-
-    if (cachedData && cachedTimestamp) {
-        const currentTime = new Date().getTime();
-        const cachedTime = parseInt(cachedTimestamp);
-        const ONE_HOUR = 60 * 60 * 1000;
-
-        if (currentTime - cachedTime < ONE_HOUR) {
-            return JSON.parse(cachedData);
-        }
-    }
-    return null;
-};
+import ProductService from '../../services/productService';
 
 export const fetchProducts = createAsyncThunk(
     'products/fetchProducts',
     async (_, { rejectWithValue }) => {
         try {
-            const cachedProducts = getProductsFromCache();
-            if (cachedProducts) {
-                return cachedProducts;
-            }
-
-            const response = await axios.get(`${API_BASE_URL}/product`);
-
-            const currentTime = new Date().getTime();
-            Cookies.set('productsData', JSON.stringify(response.data), { expires: 1 / 24 });
-            Cookies.set('productsTimestamp', currentTime.toString(), { expires: 1 / 24 });
-
-            return response.data;
+            const result = await ProductService.getProductsPaginated(1);
+            return result;
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            return rejectWithValue(error.response?.data || 'Error al cargar productos');
+        }
+    }
+);
+
+export const fetchMoreProducts = createAsyncThunk(
+    'products/fetchMoreProducts',
+    async (page, { rejectWithValue }) => {
+        try {
+            const result = await ProductService.getProductsPaginated(page);
+            return {
+                ...result,
+                page
+            };
+        } catch (error) {
+            return rejectWithValue(error.response?.data || 'Error al cargar más productos');
         }
     }
 );
@@ -63,31 +32,35 @@ export const fetchProductById = createAsyncThunk(
     'products/fetchProductById',
     async (id, { rejectWithValue }) => {
         try {
-            const cachedProduct = getProductByIdFromCache(id);
-            if (cachedProduct) {
-                return cachedProduct;
-            }
-
-            const response = await axios.get(`${API_BASE_URL}/product/${id}`);
-
-            const currentTime = new Date().getTime();
-            Cookies.set(`product_${id}`, JSON.stringify(response.data), { expires: 1 / 24 });
-            Cookies.set(`product_${id}_timestamp`, currentTime.toString(), { expires: 1 / 24 });
-
-            return response.data;
+            return await ProductService.getProductById(id);
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            return rejectWithValue(error.response?.data || 'Error al cargar el producto');
+        }
+    }
+);
+
+export const addProductToCart = createAsyncThunk(
+    'products/addProductToCart',
+    async ({ productId, colorCode, storageCode }, { rejectWithValue }) => {
+        try {
+            return await ProductService.addToCart(productId, colorCode, storageCode);
+        } catch (error) {
+            return rejectWithValue(error.response?.data || 'Error al añadir el producto al carrito');
         }
     }
 );
 
 const initialState = {
     items: [],
+    allProductsCount: 0,
     selectedProduct: null,
     filteredItems: [],
     searchTerm: '',
-    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+    status: 'idle',          // 'idle' | 'loading' | 'loading-more' | 'succeeded' | 'failed'
+    currentPage: 1,
+    hasMore: true,
     error: null,
+    cartCount: 0,
 };
 
 const productSlice = createSlice({
@@ -109,6 +82,14 @@ const productSlice = createSlice({
         },
         clearSelectedProduct: (state) => {
             state.selectedProduct = null;
+        },
+        resetPagination: (state) => {
+            state.currentPage = 1;
+            state.hasMore = true;
+        },
+        clearCache: () => {
+
+            ProductService.clearProductsCache();
         }
     },
     extraReducers: (builder) => {
@@ -118,11 +99,49 @@ const productSlice = createSlice({
             })
             .addCase(fetchProducts.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.items = action.payload;
-                state.filteredItems = action.payload;
+                state.items = action.payload.data;
+                state.filteredItems = action.payload.data;
+                state.allProductsCount = action.payload.totalCount;
+                state.currentPage = 1;
+                state.hasMore = state.items.length < action.payload.totalCount;
                 state.error = null;
             })
             .addCase(fetchProducts.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload;
+            })
+
+            .addCase(fetchMoreProducts.pending, (state) => {
+                state.status = 'loading-more';
+            })
+            .addCase(fetchMoreProducts.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+
+                if (action.payload.page === 1) {
+                    state.items = action.payload.data;
+                } else {
+                    const existingIds = new Set(state.items.map(p => p.id));
+                    const uniqueNewProducts = action.payload.data.filter(p => !existingIds.has(p.id));
+                    state.items = [...state.items, ...uniqueNewProducts];
+                }
+
+                state.currentPage = action.payload.page;
+
+                if (state.searchTerm) {
+                    const term = state.searchTerm.toLowerCase();
+                    state.filteredItems = state.items.filter(
+                        item =>
+                            item.brand.toLowerCase().includes(term) ||
+                            item.model.toLowerCase().includes(term)
+                    );
+                } else {
+                    state.filteredItems = state.items;
+                }
+
+                state.hasMore = state.items.length < action.payload.totalCount;
+                state.error = null;
+            })
+            .addCase(fetchMoreProducts.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
             })
@@ -138,9 +157,25 @@ const productSlice = createSlice({
             .addCase(fetchProductById.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
+            })
+
+            .addCase(addProductToCart.pending, (state) => {
+
+            })
+            .addCase(addProductToCart.fulfilled, (state, action) => {
+                state.cartCount = action.payload.count;
+            })
+            .addCase(addProductToCart.rejected, (state, action) => {
+                state.error = action.payload;
             });
     },
 });
 
-export const { setSearchTerm, clearSelectedProduct } = productSlice.actions;
+export const {
+    setSearchTerm,
+    clearSelectedProduct,
+    resetPagination,
+    clearCache
+} = productSlice.actions;
+
 export default productSlice.reducer;
