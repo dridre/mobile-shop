@@ -35,6 +35,12 @@ const ProductService = {
                 return cachedProduct;
             }
 
+            if (!cachedProduct) {
+                const response = await axios.get(`${API_BASE_URL}/product`);
+
+                await ProductCache.saveProductsList(response.data);
+            }
+
             const response = await axios.get(`${API_BASE_URL}/product/${productId}`);
 
             await ProductCache.saveProductDetails(productId, response.data);
