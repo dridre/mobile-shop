@@ -1,17 +1,42 @@
-import React from 'react';
-import { Card, CardMedia, CardContent, Typography, CardActionArea, Box } from '@mui/material';
+import React, { useState } from 'react';
+import { Card, CardMedia, CardContent, Typography, CardActionArea, Box, useMediaQuery, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
     const navigate = useNavigate();
+    const [isHovered, setIsHovered] = useState(false);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const handleClick = () => {
         navigate(`/product/${product.id}`);
     };
 
     return (
-        <Card sx={{ height: '100%', width: "100%", display: 'flex', flexDirection: 'column' }}>
-            <CardActionArea onClick={handleClick} sx={{ display: 'flex', flexDirection: 'row', height: '100%', alignItems: 'stretch' }}>
+        <Card
+            sx={{
+                height: '100%',
+                width: "100%",
+                display: 'flex',
+                flexDirection: 'column',
+                transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
+                transition: 'all 0.3s ease',
+                boxShadow: isMobile || isHovered ? (isHovered ? '0 8px 16px rgba(0,0,0,0.2)' : '0 2px 4px rgba(0,0,0,0.1)') : 'none',
+                backgroundColor: isMobile || isHovered ? undefined : 'transparent',
+                border: isMobile || isHovered ? undefined : 'none',
+            }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <CardActionArea
+                onClick={handleClick}
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    height: '100%',
+                    alignItems: 'stretch'
+                }}
+            >
                 <Box sx={{ width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <CardMedia
                         component="img"
