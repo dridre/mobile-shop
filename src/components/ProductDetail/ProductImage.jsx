@@ -3,15 +3,10 @@ import React from 'react'
 
 const ProductImage = ({ product }) => {
     return (
-        <Box
-            component="img"
+        <img
             alt={`${product.brand} - ${product.model}`}
             src={product.imgUrl}
-            sx={{
-                width: '100%',
-                height: 'auto',
-                maxWidth: '50%'
-            }}
+            loading='lazy'
         />
     )
 }
