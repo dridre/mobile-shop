@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     Box,
     Paper,
@@ -13,11 +13,17 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useSelector, useDispatch } from 'react-redux';
-import { clearCartItems, removeCartItem } from '../../redux/slices/cartSlice';
+import { clearCartItems, removeCartItem, initializeCart } from '../../redux/slices/cartSlice';
 
 const CartDropdown = ({ anchorEl, open, handleClose }) => {
     const dispatch = useDispatch();
     const cartItems = useSelector(state => state.cart.items);
+
+    useEffect(() => {
+        if (open) {
+            dispatch(initializeCart());
+        }
+    }, [open, dispatch]);
 
     const handleRemoveItem = (index, event) => {
         event.stopPropagation();

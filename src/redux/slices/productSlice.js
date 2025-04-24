@@ -83,7 +83,6 @@ const productSlice = createSlice({
                 state.selectedProduct = action.payload;
                 state.error = null;
 
-                // Asegurarnos de que el producto esté en la lista de productos
                 if (state.items.length > 0 && !state.items.some(item => item.id === action.payload.id)) {
                     state.items = [...state.items, action.payload];
                     state.filteredItems = state.items;

@@ -129,10 +129,10 @@ const ProductAction = ({ product }) => {
                     startIcon={<AddShoppingCartIcon />}
                     sx={{ px: 4, py: 1.5 }}
                     size="medium"
-                    disabled={status === 'loading' || isAdding}
+                    disabled={status === isAdding}
                     onClick={addCart}
                 >
-                    {status === 'loading' || isAdding ? 'Añadiendo...' : 'Añadir al carrito'}
+                    {status === isAdding ? 'Añadiendo...' : 'Añadir al carrito'}
                 </Button>
             </Box>
         </Box>
