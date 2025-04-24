@@ -1,70 +1,94 @@
-# Getting Started with Create React App
+# Mobile Shop - Frontend Test
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Esta aplicación es una mini-tienda de dispositivos móviles desarrollada como prueba técnica frontend.
 
-## Available Scripts
+## Descripción del Proyecto
 
-In the project directory, you can run:
+La aplicación consta de dos vistas principales:
+- **Lista de Productos**: Muestra todos los productos disponibles con opciones de filtrado.
+- **Detalle de Producto**: Muestra información detallada del producto seleccionado y permite añadirlo al carrito.
 
-### `npm start`
+## Tecnologías Utilizadas
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- React 19
+- React Router DOM para navegación
+- Redux Toolkit para gestión del estado
+- Material UI para componentes y estilos
+- IndexedDB para cacheo de datos
+- Axios para peticiones HTTP
+- Jest y Testing Library para pruebas
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Características Principales
 
-### `npm test`
+- **Listado de Productos**: Visualización en grid adaptativo según resolución (máximo 4 por fila).
+- **Búsqueda**: Filtrado en tiempo real por marca y modelo.
+- **Detalle de Producto**: Vista dividida con imagen y especificaciones.
+- **Carrito de Compras**: Añadir productos con opciones de color y almacenamiento.
+- **Caché**: Almacenamiento local de datos con expiración de 1 hora.
+- **Diseño Responsive**: Adaptable a diferentes tamaños de pantalla.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Estructura del Proyecto
 
-### `npm run build`
+```
+mobile-shop/
+├── public/                 # Archivos públicos
+├── src/                    # Código fuente
+│   ├── components/         # Componentes reutilizables
+│   │   ├── cart/           # Componentes relacionados con el carrito
+│   │   ├── common/         # Componentes comunes (Header, SearchBar, etc.)
+│   │   ├── product/        # Componentes de productos
+│   │   └── ProductDetail/  # Componentes de detalle de producto
+│   ├── pages/              # Páginas principales
+│   ├── redux/              # Configuración de Redux
+│   │   └── slices/         # Slices para Redux Toolkit
+│   ├── services/           # Servicios para API
+│   ├── theme/              # Configuración de temas
+│   ├── utils/              # Utilidades y cacheo
+│   ├── App.jsx             # Componente principal
+│   ├── index.jsx           # Punto de entrada
+│   └── routes.js           # Configuración de rutas
+└── package.json            # Dependencias y scripts
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Scripts Disponibles
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+# Modo desarrollo
+npm start
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Compilación para producción
+npm run build
 
-### `npm run eject`
+# Ejecución de tests
+npm test
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Comprobación de código
+npm run lint
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## API Utilizada
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+La aplicación se integra con la API disponible en:
+```
+https://itx-frontend-test.onrender.com/api
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Endpoints:
+- GET /api/product - Listado de productos
+- GET /api/product/:id - Detalle de producto
+- POST /api/cart - Añadir producto al carrito
 
-## Learn More
+## Persistencia de Datos
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Se implementa un sistema de cacheo utilizando IndexedDB:
+- Los datos obtenidos del API se almacenan localmente.
+- La caché expira después de 1 hora.
+- Se implementa en utils/productCache.js y utils/cartCache.js.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Características de la Implementación
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. **ProductList**: Visualización paginada y adaptativa de productos.
+2. **ProductDetail**: Vista detallada con todas las especificaciones técnicas.
+3. **Carrito**: Funcionalidad completa para añadir productos con diferentes opciones.
+4. **Breadcrumbs**: Navegación con indicación de la ubicación actual.
+5. **Búsqueda**: Filtrado en tiempo real por marca y modelo.
