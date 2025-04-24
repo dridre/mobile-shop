@@ -22,11 +22,8 @@ const ProductList = () => {
     // Carga los productos al montar el componente
     useEffect(() => {
         dispatch(clearSelectedProduct());
-
-        if (status === 'idle') {
-            dispatch(fetchProducts());
-        }
-    }, [status, dispatch]);
+        dispatch(fetchProducts());
+    }, [dispatch]);
 
     // Resetea a la primera página cuando cambia el filtro
     useEffect(() => {

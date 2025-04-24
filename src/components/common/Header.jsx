@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Badge, IconButton, Box, useMediaQuery, useTheme } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SmartphoneIcon from '@mui/icons-material/Smartphone';
 import { Link, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import CartDropdown from '../cart/CartDropdown';
-import { fetchProductById } from '../../redux/slices/productSlice';
 
 const Header = () => {
 
@@ -14,7 +13,6 @@ const Header = () => {
 
     // Obtiene la ubicación actual de la URL
     const location = useLocation();
-    const dispatch = useDispatch();
 
     // Configuración para diseño responsive
     const theme = useTheme();
@@ -26,15 +24,6 @@ const Header = () => {
     // Estado para controlar el dropdown del carrito
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
-
-    // Carga el producto si estamos en la página de detalle
-    useEffect(() => {
-        const paths = location.pathname.split('/').filter(p => p);
-        if (paths[0] === 'product' && paths.length === 2) {
-            const productId = paths[1];
-            dispatch(fetchProductById(productId));
-        }
-    }, [location.pathname, dispatch]);
 
     // Función para abrir el dropdown del carrito
     const handleCartClick = (event) => {
