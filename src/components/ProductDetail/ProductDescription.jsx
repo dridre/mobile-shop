@@ -46,7 +46,7 @@ const ProductDescription = ({ product }) => {
 
     return (
         <Box mb={2} >
-            <Paper elevation={1} sx={{ mb: 2 }}>
+            <Paper elevation={1} sx={{ mb: 2, mt: 4 }}>
                 <Table
                     size="small"
                     sx={{

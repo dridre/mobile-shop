@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Container, Typography, CircularProgress, Button } from '@mui/material';
+import { Box, Container, Typography, CircularProgress, Button, useTheme, useMediaQuery } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { fetchProductById } from '../redux/slices/productSlice';
 import ProductImage from '../components/ProductDetail/ProductImage';
@@ -13,6 +13,8 @@ const ProductDetailPage = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
     const { selectedProduct, status, error } = useSelector(state => state.products);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     useEffect(() => {
         if (id) {
@@ -57,13 +59,13 @@ const ProductDetailPage = () => {
     }
 
     return (
-        <Container sx={{ py: 4, height: '90vh', display: 'flex', flexDirection: 'column' }}>
+        <Container sx={{ py: 2, height: isMobile ? 'auto' : '90vh', display: 'flex', flexDirection: 'column' }}>
             <Box
                 display="flex"
                 width="100%"
                 justifyContent="space-between"
                 alignItems="center"
-                mb={4}
+                mb={1}
             >
                 <Button
                     component={Link}
@@ -73,17 +75,39 @@ const ProductDetailPage = () => {
                 >
                     Volver a productos
                 </Button>
-                <Typography variant="h4" component="h1" fontWeight="bold">
-                    {selectedProduct.brand} - {selectedProduct.model}
-                </Typography>
-                <Box width="130px" />
             </Box>
 
-            <Box display="flex" width="100%" flex="1" justifyContent="center" alignItems="center">
-                <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="100%">
+            <Box
+                display="flex"
+                width="100%"
+                flex="1"
+                flexDirection={isMobile ? 'column' : 'row'}
+                justifyContent="center"
+                alignItems="center"
+                gap={isMobile ? 4 : 2}
+                py={isMobile ? 3 : 0}
+            >
+                <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    width={isMobile ? '100%' : '50%'}
+                    height={isMobile ? 'auto' : '100%'}
+                >
                     <ProductImage product={selectedProduct} />
                 </Box>
-                <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" width="100%" height="100%">
+                <Box
+                    display="flex"
+                    flexDirection="column"
+                    justifyContent="center"
+                    alignItems={isMobile ? 'center' : 'flex-start'}
+                    width={isMobile ? '100%' : '50%'}
+                    height={isMobile ? 'auto' : '100%'}
+                    textAlign={isMobile ? 'center' : 'left'}
+                >
+                    <Typography variant={isMobile ? "h5" : "h4"} component="h1" fontWeight="bold" mb={2}>
+                        {selectedProduct.brand} - {selectedProduct.model}
+                    </Typography>
                     <ProductDescription product={selectedProduct} />
                     <ProductAction product={selectedProduct} />
                 </Box>

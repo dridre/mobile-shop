@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Badge, IconButton, Box } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import SmartphoneIcon from '@mui/icons-material/Smartphone';
 import { Link, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import CartDropdown from '../cart/CartDropdown';
@@ -58,20 +59,18 @@ const Header = () => {
     return (
         <AppBar position="static">
             <Toolbar>
-                <Typography
-                    variant="h4"
+                <IconButton
                     component={Link}
                     to="/"
+                    color="inherit"
+                    aria-label="inicio"
                     sx={{
-                        flexGrow: 0,
-                        marginRight: 4,
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        fontWeight: 'bold'
+                        fontSize: '1.75rem',
+                        marginRight: 2
                     }}
                 >
-                    Mobile Shop
-                </Typography>
+                    <SmartphoneIcon fontSize="large" />
+                </IconButton>
 
                 <Box sx={{
                     flexGrow: 1,
