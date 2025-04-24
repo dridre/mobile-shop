@@ -21,6 +21,10 @@ const ProductList = () => {
         }
     }, [status, dispatch]);
 
+    useEffect(() => {
+        setPage(1);
+    }, [filteredItems.length]);
+
     const handlePageChange = (event, value) => {
         setPage(value);
         window.scrollTo({ top: 0, behavior: 'smooth' });
