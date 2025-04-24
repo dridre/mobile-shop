@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Container, Typography, CircularProgress, Button, useTheme, useMediaQuery } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -12,17 +12,30 @@ import ProductAction from '../components/ProductDetail/ProductAction';
 const ProductDetailPage = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { selectedProduct, status, error } = useSelector(state => state.products);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (id) {
-            dispatch(fetchProductById(id));
-        }
+        const loadProduct = async () => {
+            if (id) {
+                setIsLoading(true);
+                try {
+                    await dispatch(fetchProductById(id)).unwrap();
+                } catch (err) {
+                    console.error('Error cargando producto:', err);
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        loadProduct();
     }, [dispatch, id]);
 
-    if (status === 'loading') {
+    if (isLoading || status === 'loading') {
         return (
             <Container>
                 <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
@@ -39,7 +52,9 @@ const ProductDetailPage = () => {
                     <Typography variant="h6" color="error">
                         Error: {error}
                     </Typography>
-                    <Link to="/">Volver al listado de productos</Link>
+                    <Button variant="contained" onClick={() => navigate('/')} sx={{ mt: 2 }}>
+                        Volver al listado de productos
+                    </Button>
                 </Box>
             </Container>
         );
@@ -52,7 +67,9 @@ const ProductDetailPage = () => {
                     <Typography variant="h6">
                         No se encontró el producto
                     </Typography>
-                    <Link to="/">Volver al listado de productos</Link>
+                    <Button variant="contained" onClick={() => navigate('/')} sx={{ mt: 2 }}>
+                        Volver al listado de productos
+                    </Button>
                 </Box>
             </Container>
         );

@@ -227,6 +227,13 @@ const IndexedDBCache = {
 };
 
 const ProductCache = {
+    _db: null,
+
+    init: async () => {
+        ProductCache._db = await IndexedDBCache.init();
+        return true;
+    },
+
     saveProductsList: async (products) => {
         if (!products || !Array.isArray(products) || products.length === 0) {
             console.error('Lista de productos inválida');
@@ -260,17 +267,17 @@ const ProductCache = {
             return null;
         }
 
-        const product = await IndexedDBCache.getItem(productId);
-        return product;
+        try {
+            const product = await IndexedDBCache.getItem(productId);
+            return product || null;
+        } catch (error) {
+            console.error(`Error al obtener detalles del producto ${productId}:`, error);
+            return null;
+        }
     },
 
     clearAllProductsCache: async () => {
         return IndexedDBCache.clearCache();
-    },
-
-    init: async () => {
-        await IndexedDBCache.init();
-        return true;
     }
 };
 

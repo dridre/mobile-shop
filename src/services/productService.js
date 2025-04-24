@@ -31,7 +31,7 @@ const ProductService = {
         try {
             const cachedProduct = await ProductCache.getProductDetails(productId);
 
-            if (cachedProduct.cpu) {
+            if (cachedProduct && cachedProduct.cpu) {
                 return cachedProduct;
             }
 
