@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Grid, Box, Typography, CircularProgress, Pagination, Stack, useTheme, useMediaQuery } from '@mui/material';
 import ProductCard from './ProductCard';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchProducts } from '../../redux/slices/productSlice';
+import { fetchProducts, clearSelectedProduct } from '../../redux/slices/productSlice';
 
 const ProductList = () => {
     const { filteredItems, status, error } = useSelector(state => state.products);
@@ -16,6 +16,8 @@ const ProductList = () => {
     const productsPerPage = 12;
 
     useEffect(() => {
+        dispatch(clearSelectedProduct());
+
         if (status === 'idle') {
             dispatch(fetchProducts());
         }
