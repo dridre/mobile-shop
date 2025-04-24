@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, CircularProgress, Pagination, Stack } from '@mui/material';
+import { Grid, Box, Typography, CircularProgress, Pagination, Stack, useTheme, useMediaQuery } from '@mui/material';
 import ProductCard from './ProductCard';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchProducts } from '../../redux/slices/productSlice';
@@ -7,6 +7,10 @@ import { fetchProducts } from '../../redux/slices/productSlice';
 const ProductList = () => {
     const { filteredItems, status, error } = useSelector(state => state.products);
     const dispatch = useDispatch();
+    const theme = useTheme();
+
+    const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
+    const isSmScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 
     const [page, setPage] = useState(1);
     const productsPerPage = 12;
@@ -20,6 +24,12 @@ const ProductList = () => {
     const handlePageChange = (event, value) => {
         setPage(value);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const getPaginationSize = () => {
+        if (isXsScreen) return 'small';
+        if (isSmScreen) return 'medium';
+        return 'large';
     };
 
     if (status === 'loading') {
@@ -65,17 +75,22 @@ const ProductList = () => {
             </Grid>
 
             {totalPages > 1 && (
-                <Stack spacing={2} sx={{ display: 'flex', alignItems: 'center', my: 4 }}>
+                <Stack spacing={isXsScreen ? 1 : 2} sx={{ display: 'flex', alignItems: 'center', my: isXsScreen ? 2 : 4 }}>
                     <Pagination
                         count={totalPages}
                         page={page}
                         onChange={handlePageChange}
                         color="primary"
-                        size="large"
-                        showFirstButton
-                        showLastButton
+                        size={getPaginationSize()}
+                        showFirstButton={!isXsScreen}
+                        showLastButton={!isXsScreen}
+                        siblingCount={isXsScreen ? 0 : 1}
+                        boundaryCount={isXsScreen ? 1 : 2}
                     />
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                        variant={isXsScreen ? "caption" : "body2"}
+                        color="text.secondary"
+                    >
                         Página {page} de {totalPages} ({filteredItems.length} productos)
                     </Typography>
                 </Stack>
