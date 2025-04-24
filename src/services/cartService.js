@@ -19,12 +19,6 @@ const CartService = {
 
     addToCart: async (product, colorCode, storageCode) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/cart`, {
-                id: product.id,
-                colorCode,
-                storageCode
-            });
-
             const cartItem = {
                 id: product.id,
                 colorCode,
@@ -34,7 +28,22 @@ const CartService = {
                 img: product.imgUrl
             };
 
-            await CartCache.addItemToCart(cartItem);
+            const isDuplicate = await CartCache.isItemInCart(cartItem);
+            if (isDuplicate) {
+                throw new Error('Este producto con la misma configuración ya está en tu carrito');
+            }
+
+            const response = await axios.post(`${API_BASE_URL}/cart`, {
+                id: product.id,
+                colorCode,
+                storageCode
+            });
+
+            const success = await CartCache.addItemToCart(cartItem);
+
+            if (!success) {
+                throw new Error('No se pudo añadir el producto al carrito');
+            }
 
             return {
                 apiResponse: response.data,

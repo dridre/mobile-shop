@@ -1,6 +1,6 @@
 const CACHE_EXPIRY = 60 * 60 * 1000;
 const DB_NAME = 'CartCacheDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const CART_STORE = 'cart';
 const CART_META_KEY = 'cart_meta';
 
@@ -26,10 +26,17 @@ const CartCache = {
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
 
-                if (!db.objectStoreNames.contains(CART_STORE)) {
-                    const store = db.createObjectStore(CART_STORE, { keyPath: 'id', autoIncrement: true });
-                    store.createIndex('productId', 'productId', { unique: false });
+                if (db.objectStoreNames.contains(CART_STORE)) {
+                    db.deleteObjectStore(CART_STORE);
                 }
+
+                const store = db.createObjectStore(CART_STORE, {
+                    keyPath: 'uniqueKey',
+                    autoIncrement: false
+                });
+
+                store.createIndex('productId', 'productId', { unique: false });
+                store.createIndex('timestamp', 'timestamp', { unique: false });
             };
         });
     },
@@ -79,13 +86,21 @@ const CartCache = {
                     let itemsProcessed = 0;
 
                     store.put({
-                        id: CART_META_KEY,
+                        uniqueKey: CART_META_KEY,
                         timestamp: timestamp
                     });
 
-                    cartItems.forEach((item, index) => {
+                    if (cartItems.length === 0) {
+                        resolve(true);
+                        return;
+                    }
+
+                    cartItems.forEach((item) => {
+                        const uniqueKey = `${item.id}-${item.colorCode}-${item.storageCode}`;
+
                         const request = store.add({
                             ...item,
+                            uniqueKey: uniqueKey,
                             productId: item.id,
                             timestamp: timestamp
                         });
@@ -102,10 +117,6 @@ const CartCache = {
                             reject(event.target.error);
                         };
                     });
-
-                    if (cartItems.length === 0) {
-                        resolve(true);
-                    }
                 };
 
                 clearRequest.onerror = (event) => {
@@ -135,7 +146,7 @@ const CartCache = {
                 const request = store.getAll();
 
                 request.onsuccess = (event) => {
-                    const items = event.target.result.filter(item => item.id !== CART_META_KEY);
+                    const items = event.target.result.filter(item => item.uniqueKey !== CART_META_KEY);
 
                     const cartItems = items.map(item => ({
                         id: item.productId,
@@ -184,8 +195,29 @@ const CartCache = {
         }
     },
 
+    async isItemInCart(item) {
+        try {
+            const currentCart = await this.getCart();
+            return currentCart.some(cartItem =>
+                cartItem.id === item.id &&
+                cartItem.colorCode === item.colorCode &&
+                cartItem.storageCode === item.storageCode
+            );
+        } catch (error) {
+            console.error('Error al verificar si el item está en el carrito:', error);
+            return false;
+        }
+    },
+
     async addItemToCart(item) {
         try {
+            const isDuplicate = await this.isItemInCart(item);
+
+            if (isDuplicate) {
+                console.log('Item duplicado, no se añadirá:', item);
+                return false;
+            }
+
             const currentCart = await this.getCart();
             const updatedCart = [...currentCart, item];
             return this.saveCart(updatedCart);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -6,13 +6,14 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../redux/slices/cartSlice';
-
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ProductAction = ({ product }) => {
-
     const dispatch = useDispatch();
+    const { status, error } = useSelector(state => state.cart);
 
     const [selectedStorage, setSelectedStorage] = useState(
         product?.options?.storages?.[0]?.code?.toString() || ''
@@ -20,6 +21,40 @@ const ProductAction = ({ product }) => {
     const [selectedColor, setSelectedColor] = useState(
         product?.options?.colors?.[0]?.code?.toString() || ''
     );
+
+    const [isAdding, setIsAdding] = useState(false);
+
+    useEffect(() => {
+        if (status === 'succeeded' && isAdding) {
+            toast.success('Producto agregado al carrito', {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+            setIsAdding(false);
+        }
+
+        if (status === 'failed' && error && isAdding) {
+
+            toast.error(`Producto ya en el carrito`, {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+
+            setIsAdding(false);
+        }
+    }, [status, error, isAdding]);
 
     const handleStorageChange = (event) => {
         setSelectedStorage(event.target.value);
@@ -30,7 +65,7 @@ const ProductAction = ({ product }) => {
     };
 
     const addCart = () => {
-
+        setIsAdding(true);
         dispatch(addToCart({
             product,
             colorCode: selectedColor,
@@ -40,6 +75,19 @@ const ProductAction = ({ product }) => {
 
     return (
         <Box sx={{ width: "80%" }} display={"flex"} flexDirection={"column"} alignItems={"center"}>
+            <ToastContainer
+                position="bottom-left"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
+
             <FormControl sx={{ mb: 3, width: '200px' }} size="small">
                 <InputLabel id="storage-select-label">Storage</InputLabel>
                 <Select
@@ -81,9 +129,10 @@ const ProductAction = ({ product }) => {
                     startIcon={<AddShoppingCartIcon />}
                     sx={{ px: 4, py: 1.5 }}
                     size="medium"
-                    onClick={() => addCart()}
+                    disabled={status === 'loading' || isAdding}
+                    onClick={addCart}
                 >
-                    Añadir al carrito
+                    {status === 'loading' || isAdding ? 'Añadiendo...' : 'Añadir al carrito'}
                 </Button>
             </Box>
         </Box>
