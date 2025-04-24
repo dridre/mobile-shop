@@ -13,8 +13,11 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const ProductAction = ({ product }) => {
     const dispatch = useDispatch();
+
+    // Obtiene el estado del carrito desde Redux
     const { status, error } = useSelector(state => state.cart);
 
+    // Estados para las opciones seleccionadas (almacenamiento y color)
     const [selectedStorage, setSelectedStorage] = useState(
         product?.options?.storages?.[0]?.code?.toString() || ''
     );
@@ -22,10 +25,13 @@ const ProductAction = ({ product }) => {
         product?.options?.colors?.[0]?.code?.toString() || ''
     );
 
+    // Estado para controlar cuando se está añadiendo un producto
     const [isAdding, setIsAdding] = useState(false);
 
+    // Efecto para mostrar notificaciones según resultado de la acción
     useEffect(() => {
         if (status === 'succeeded' && isAdding) {
+            // Notificación de éxito
             toast.success('Producto agregado al carrito', {
                 position: "bottom-left",
                 autoClose: 3000,
@@ -41,6 +47,7 @@ const ProductAction = ({ product }) => {
 
         if (status === 'failed' && error && isAdding) {
 
+            // Notificación de error
             toast.error(`Producto ya en el carrito`, {
                 position: "bottom-left",
                 autoClose: 3000,
@@ -56,14 +63,17 @@ const ProductAction = ({ product }) => {
         }
     }, [status, error, isAdding]);
 
+    // Maneja cambios en la selección de almacenamiento
     const handleStorageChange = (event) => {
         setSelectedStorage(event.target.value);
     };
 
+    // Maneja cambios en la selección de color
     const handleColorChange = (event) => {
         setSelectedColor(event.target.value);
     };
 
+    // Añade el producto al carrito con las opciones seleccionadas
     const addCart = () => {
         setIsAdding(true);
         dispatch(addToCart({
@@ -75,6 +85,7 @@ const ProductAction = ({ product }) => {
 
     return (
         <Box sx={{ width: "80%" }} display={"flex"} flexDirection={"column"} alignItems={"center"}>
+            {/* Contenedor de notificaciones toast */}
             <ToastContainer
                 position="bottom-left"
                 autoClose={3000}
@@ -88,6 +99,7 @@ const ProductAction = ({ product }) => {
                 theme="colored"
             />
 
+            {/* Selector de almacenamiento */}
             <FormControl sx={{ mb: 3, width: '200px' }} size="small">
                 <InputLabel id="storage-select-label">Storage</InputLabel>
                 <Select
@@ -105,6 +117,7 @@ const ProductAction = ({ product }) => {
                 </Select>
             </FormControl>
 
+            {/* Selector de color */}
             <FormControl sx={{ mb: 4, width: '200px' }} size="small">
                 <InputLabel id="color-select-label">Color</InputLabel>
                 <Select
@@ -122,6 +135,7 @@ const ProductAction = ({ product }) => {
                 </Select>
             </FormControl>
 
+            {/* Botón de añadir al carrito */}
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <Button
                     variant="contained"

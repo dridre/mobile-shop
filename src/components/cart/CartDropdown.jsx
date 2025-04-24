@@ -15,21 +15,27 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearCartItems, removeCartItem, initializeCart } from '../../redux/slices/cartSlice';
 
+
 const CartDropdown = ({ anchorEl, open, handleClose }) => {
     const dispatch = useDispatch();
+
+    // Obtiene los items del carrito del estado de Redux
     const cartItems = useSelector(state => state.cart.items);
 
+    // Inicializa el carrito cuando se abre el dropdown
     useEffect(() => {
         if (open) {
             dispatch(initializeCart());
         }
     }, [open, dispatch]);
 
+    // Función para eliminar un item específico del carrito
     const handleRemoveItem = (index, event) => {
         event.stopPropagation();
         dispatch(removeCartItem(index));
     };
 
+    // Función para vaciar todo el carrito
     const handleClearCart = (event) => {
         event.stopPropagation();
         dispatch(clearCartItems());
@@ -54,12 +60,14 @@ const CartDropdown = ({ anchorEl, open, handleClose }) => {
                     Carrito de Compras
                 </Typography>
 
+                {/* Muestra mensaje si el carrito está vacío */}
                 {cartItems.length === 0 ? (
                     <Typography variant="body2" color="text.secondary" sx={{ my: 2 }}>
                         Tu carrito está vacío
                     </Typography>
                 ) : (
                     <>
+                        {/* Lista de productos en el carrito */}
                         <List sx={{ maxHeight: 300, overflow: 'auto' }}>
                             {cartItems.map((item, index) => (
                                 <React.Fragment key={index}>
@@ -75,6 +83,7 @@ const CartDropdown = ({ anchorEl, open, handleClose }) => {
                                             </IconButton>
                                         }
                                     >
+                                        {/* Miniatura del producto */}
                                         <Box
                                             sx={{
                                                 mr: 2,
@@ -95,6 +104,7 @@ const CartDropdown = ({ anchorEl, open, handleClose }) => {
                                                 }}
                                             />
                                         </Box>
+                                        {/* Información del producto */}
                                         <ListItemText
                                             primary={`${item.brand} - ${item.model}`}
                                             secondary={`Color: ${item.colorCode}, Almacenamiento: ${item.storageCode}`}
@@ -105,6 +115,7 @@ const CartDropdown = ({ anchorEl, open, handleClose }) => {
                             ))}
                         </List>
 
+                        {/* Botón para vaciar el carrito */}
                         <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
                             <Button
                                 size="small"

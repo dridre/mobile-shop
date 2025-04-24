@@ -8,17 +8,26 @@ import CartDropdown from '../cart/CartDropdown';
 import { fetchProductById } from '../../redux/slices/productSlice';
 
 const Header = () => {
+
+    // Obtiene los items del carrito del estado de Redux
     const cartItems = useSelector(state => state.cart.items);
+
+    // Obtiene la ubicación actual de la URL
     const location = useLocation();
     const dispatch = useDispatch();
+
+    // Configuración para diseño responsive
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+    // Obtiene el producto seleccionado del estado
     const selectedProduct = useSelector(state => state.products.selectedProduct);
 
+    // Estado para controlar el dropdown del carrito
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
+    // Carga el producto si estamos en la página de detalle
     useEffect(() => {
         const paths = location.pathname.split('/').filter(p => p);
         if (paths[0] === 'product' && paths.length === 2) {
@@ -27,14 +36,17 @@ const Header = () => {
         }
     }, [location.pathname, dispatch]);
 
+    // Función para abrir el dropdown del carrito
     const handleCartClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
 
+    // Función para cerrar el dropdown del carrito
     const handleClose = () => {
         setAnchorEl(null);
     };
 
+    // Genera las migas de pan (breadcrumbs) según la ubicación actual
     const getBreadcrumbs = () => {
         const paths = location.pathname.split('/').filter(p => p);
 
@@ -61,6 +73,7 @@ const Header = () => {
     return (
         <AppBar position="static">
             <Toolbar>
+                {/* Logo adaptado para dispositivos móviles o desktop */}
                 {isMobile ? (
                     <IconButton
                         component={Link}
@@ -93,6 +106,7 @@ const Header = () => {
                     </Box>
                 )}
 
+                {/* Breadcrumbs para navegación */}
                 <Box sx={{
                     flexGrow: 1,
                     display: 'flex',
@@ -104,6 +118,7 @@ const Header = () => {
                     </Typography>
                 </Box>
 
+                {/* Icono del carrito con badge para mostrar cantidad */}
                 <IconButton
                     color="inherit"
                     aria-label="carrito de compras"
@@ -114,6 +129,7 @@ const Header = () => {
                     </Badge>
                 </IconButton>
 
+                {/* Componente dropdown del carrito */}
                 <CartDropdown
                     anchorEl={anchorEl}
                     open={open}

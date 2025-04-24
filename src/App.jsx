@@ -7,23 +7,29 @@ import { initializeCart } from './redux/slices/cartSlice';
 import { fetchProducts } from './redux/slices/productSlice';
 import CartCache from './utils/cartCache';
 
-
 function App() {
-
   const dispatch = useDispatch();
 
+  // Efecto para inicializar la aplicación al cargar
   useEffect(() => {
     const initialize = async () => {
       try {
+
+        // Inicializa la caché de productos
         await ProductCache.init();
 
+        // Inicializa la caché del carrito
         await CartCache.init();
 
+        // Carga los productos desde la API o caché
         dispatch(fetchProducts());
 
+        // Carga los items del carrito
         dispatch(initializeCart());
 
       } catch (error) {
+
+        // Si hay error durante la inicialización, intenta cargar los datos de todas formas
         console.error('Error al inicializar la aplicación:', error);
 
         dispatch(fetchProducts());

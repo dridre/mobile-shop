@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import ProductService from '../../services/productService';
 
+// Thunk para obtener todos los productos
 export const fetchProducts = createAsyncThunk(
     'products/fetchProducts',
     async (_, { rejectWithValue }) => {
@@ -14,6 +15,7 @@ export const fetchProducts = createAsyncThunk(
     }
 );
 
+// Thunk para obtener un producto específico por su ID
 export const fetchProductById = createAsyncThunk(
     'products/fetchProductById',
     async (id, { rejectWithValue }) => {
@@ -26,25 +28,33 @@ export const fetchProductById = createAsyncThunk(
     }
 );
 
+// Estado inicial de los productos
 const initialState = {
-    items: [],
-    selectedProduct: null,
-    filteredItems: [],
-    searchTerm: '',
-    status: 'idle',          // 'idle' | 'loading' | 'succeeded' | 'failed'
-    error: null,
-    cartCount: 0,
+    items: [],                // Lista completa de productos
+    selectedProduct: null,    // Producto seleccionado para ver detalles
+    filteredItems: [],        // Productos filtrados por búsqueda
+    searchTerm: '',           // Término de búsqueda actual
+    status: 'idle',           // Estado: 'idle' | 'loading' | 'succeeded' | 'failed'
+    error: null,              // Mensaje de error si existe
+    cartCount: 0,             // Contador de productos en el carrito
 };
 
+// Slice para gestionar el estado de los productos
 const productSlice = createSlice({
     name: 'products',
     initialState,
     reducers: {
+
+        // Actualiza el término de búsqueda y filtra los productos
         setSearchTerm: (state, action) => {
             state.searchTerm = action.payload;
             if (action.payload === '') {
+
+                // Si no hay búsqueda, muestra todos los productos
                 state.filteredItems = state.items;
             } else {
+
+                // Filtra por marca o modelo
                 const term = action.payload.toLowerCase();
                 state.filteredItems = state.items.filter(
                     item =>
@@ -53,15 +63,20 @@ const productSlice = createSlice({
                 );
             }
         },
+
+        // Limpia el producto seleccionado
         clearSelectedProduct: (state) => {
             state.selectedProduct = null;
         },
+
+        // Limpia la caché de productos
         clearCache: () => {
             ProductService.clearProductsCache();
         }
     },
     extraReducers: (builder) => {
         builder
+            // Casos para cargar todos los productos
             .addCase(fetchProducts.pending, (state) => {
                 state.status = 'loading';
             })
@@ -75,6 +90,8 @@ const productSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.payload;
             })
+
+            // Casos para cargar un producto por ID
             .addCase(fetchProductById.pending, (state) => {
                 state.status = 'loading';
             })
@@ -83,6 +100,7 @@ const productSlice = createSlice({
                 state.selectedProduct = action.payload;
                 state.error = null;
 
+                // Si el producto no existe en items, lo añade
                 if (state.items.length > 0 && !state.items.some(item => item.id === action.payload.id)) {
                     state.items = [...state.items, action.payload];
                     state.filteredItems = state.items;
@@ -95,6 +113,7 @@ const productSlice = createSlice({
     },
 });
 
+// Exporta las acciones síncronas
 export const {
     setSearchTerm,
     clearSelectedProduct,

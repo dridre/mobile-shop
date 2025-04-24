@@ -12,8 +12,11 @@ import {
 
 const ProductDescription = ({ product }) => {
     const theme = useTheme();
+
+    // Detecta si es pantalla móvil para ajustar estilos
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+    // Desestructura las propiedades del producto
     const {
         brand,
         model,
@@ -29,6 +32,7 @@ const ProductDescription = ({ product }) => {
         weight
     } = product;
 
+    // Array con todas las especificaciones a mostrar
     const specifications = [
         { name: 'Marca', value: brand },
         { name: 'Modelo', value: model },
@@ -46,6 +50,7 @@ const ProductDescription = ({ product }) => {
 
     return (
         <Box mb={2} >
+            {/* Tabla de especificaciones */}
             <Paper elevation={1} sx={{ mb: 2, mt: 4 }}>
                 <Table
                     size="small"
@@ -64,6 +69,7 @@ const ProductDescription = ({ product }) => {
                         {specifications.map((spec) => (
                             spec.value && (
                                 <TableRow key={spec.name}>
+                                    {/* Nombre de la especificación */}
                                     <TableCell
                                         component="th"
                                         scope="row"
@@ -76,6 +82,7 @@ const ProductDescription = ({ product }) => {
                                     >
                                         {spec.name}
                                     </TableCell>
+                                    {/* Valor de la especificación */}
                                     <TableCell
                                         sx={{
                                             borderBottom: '1px solid rgba(224, 224, 224, 0.3)',

@@ -1,11 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import CartService from '../../services/cartService';
 
+// Función para cargar los items iniciales del carrito
 const loadInitialItems = async () => {
     await CartService.init();
     return CartService.getCartItems();
 };
 
+// Thunk para añadir un producto al carrito
 export const addToCart = createAsyncThunk(
     'cart/addToCart',
     async ({ product, colorCode, storageCode }, { rejectWithValue }) => {
@@ -17,6 +19,7 @@ export const addToCart = createAsyncThunk(
     }
 );
 
+// Thunk para eliminar un producto del carrito por su índice
 export const removeCartItem = createAsyncThunk(
     'cart/removeItem',
     async (index, { rejectWithValue }) => {
@@ -32,6 +35,7 @@ export const removeCartItem = createAsyncThunk(
     }
 );
 
+// Thunk para vaciar completamente el carrito
 export const clearCartItems = createAsyncThunk(
     'cart/clearItems',
     async (_, { rejectWithValue }) => {
@@ -47,6 +51,7 @@ export const clearCartItems = createAsyncThunk(
     }
 );
 
+// Thunk para inicializar el carrito desde localStorage o la API
 export const initializeCart = createAsyncThunk(
     'cart/initialize',
     async (_, { rejectWithValue }) => {
@@ -59,18 +64,21 @@ export const initializeCart = createAsyncThunk(
     }
 );
 
+// Estado inicial del carrito
 const initialState = {
-    items: [],
-    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
-    error: null,
+    items: [],                // Productos en el carrito
+    status: 'idle',           // Estado: 'idle' | 'loading' | 'succeeded' | 'failed'
+    error: null,              // Mensaje de error si existe
 };
 
+// Slice para gestionar el estado del carrito
 const cartSlice = createSlice({
     name: 'cart',
     initialState,
     reducers: {},
     extraReducers: (builder) => {
         builder
+            // Casos para inicializar el carrito
             .addCase(initializeCart.pending, (state) => {
                 state.status = 'loading';
             })
@@ -84,6 +92,7 @@ const cartSlice = createSlice({
                 state.error = action.payload;
             })
 
+            // Casos para añadir al carrito
             .addCase(addToCart.pending, (state) => {
                 state.status = 'loading';
             })
@@ -97,6 +106,7 @@ const cartSlice = createSlice({
                 state.error = action.payload;
             })
 
+            // Casos para eliminar del carrito
             .addCase(removeCartItem.pending, (state) => {
                 state.status = 'loading';
             })
@@ -110,6 +120,7 @@ const cartSlice = createSlice({
                 state.error = action.payload;
             })
 
+            // Casos para vaciar el carrito
             .addCase(clearCartItems.pending, (state) => {
                 state.status = 'loading';
             })

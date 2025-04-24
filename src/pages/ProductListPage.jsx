@@ -8,6 +8,7 @@ import { setSearchTerm } from '../redux/slices/productSlice';
 const ProductListPage = () => {
     const dispatch = useDispatch();
 
+    // Limpia el término de búsqueda al desmontar el componente
     useEffect(() => {
         return () => {
             dispatch(setSearchTerm(''));
@@ -17,7 +18,9 @@ const ProductListPage = () => {
     return (
         <Container>
             <Box sx={{ mb: 4 }}>
+                {/* Barra de búsqueda para filtrar productos */}
                 <SearchBar />
+                {/* Listado de productos con paginación */}
                 <ProductList />
             </Box>
         </Container>

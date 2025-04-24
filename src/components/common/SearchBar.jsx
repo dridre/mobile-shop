@@ -6,13 +6,22 @@ import { setSearchTerm } from '../../redux/slices/productSlice';
 
 const SearchBar = () => {
     const dispatch = useDispatch();
+
+    // Estado local para el término de búsqueda
     const [localSearchTerm, setLocalSearchTerm] = React.useState('');
+
+    // Configuración para diseño responsive
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+    // Maneja los cambios en el input de búsqueda
     const handleSearch = (e) => {
         const value = e.target.value;
+
+        // Actualiza el estado local
         setLocalSearchTerm(value);
+
+        // Actualiza el estado global (Redux)
         dispatch(setSearchTerm(value));
     };
 

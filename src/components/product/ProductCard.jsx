@@ -4,10 +4,15 @@ import { useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
     const navigate = useNavigate();
+
+    // Estado para controlar el efecto hover
     const [isHovered, setIsHovered] = useState(false);
+
+    // Configuración responsive
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+    // Función para navegar al detalle del producto
     const handleClick = () => {
         navigate(`/product/${product.id}`);
     };
@@ -37,6 +42,7 @@ const ProductCard = ({ product }) => {
                     alignItems: 'stretch'
                 }}
             >
+                {/* Contenedor de la imagen del producto */}
                 <Box sx={{ width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <CardMedia
                         component="img"
@@ -52,6 +58,7 @@ const ProductCard = ({ product }) => {
                     />
                 </Box>
 
+                {/* Contenedor de la información del producto */}
                 <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <CardContent sx={{ flexGrow: 1 }}>
                         <Typography variant="subtitle1" component="div" fontWeight="bold">
@@ -62,6 +69,7 @@ const ProductCard = ({ product }) => {
                         </Typography>
                     </CardContent>
 
+                    {/* Precio del producto */}
                     <CardContent sx={{ pt: 0 }}>
                         <Typography variant="h6" color="primary" sx={{ textAlign: 'right' }}>
                             {product.price ? `${product.price}€` : '--€'}

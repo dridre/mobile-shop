@@ -8,16 +8,24 @@ import ProductImage from '../components/ProductDetail/ProductImage';
 import ProductDescription from '../components/ProductDetail/ProductDescription';
 import ProductAction from '../components/ProductDetail/ProductAction';
 
-
 const ProductDetailPage = () => {
+
+    // Obtiene el ID del producto de la URL
     const { id } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    // Obtiene el producto seleccionado del estado de Redux
     const { selectedProduct, status, error } = useSelector(state => state.products);
+
+    // Configuración responsive
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    // Estado local para controlar la carga
     const [isLoading, setIsLoading] = useState(true);
 
+    // Carga el producto al montar el componente
     useEffect(() => {
         const loadProduct = async () => {
             if (id) {
@@ -35,6 +43,7 @@ const ProductDetailPage = () => {
         loadProduct();
     }, [dispatch, id]);
 
+    // Muestra spinner mientras carga
     if (isLoading || status === 'loading') {
         return (
             <Container>
@@ -45,6 +54,7 @@ const ProductDetailPage = () => {
         );
     }
 
+    // Muestra mensaje de error si falla la carga
     if (error) {
         return (
             <Container>
@@ -60,6 +70,7 @@ const ProductDetailPage = () => {
         );
     }
 
+    // Muestra mensaje si no se encuentra el producto
     if (!selectedProduct) {
         return (
             <Container>
@@ -77,6 +88,7 @@ const ProductDetailPage = () => {
 
     return (
         <Container sx={{ py: 2, height: isMobile ? 'auto' : '90vh', display: 'flex', flexDirection: 'column' }}>
+            {/* Botón para volver al listado */}
             <Box
                 display="flex"
                 width="100%"
@@ -94,6 +106,7 @@ const ProductDetailPage = () => {
                 </Button>
             </Box>
 
+            {/* Contenedor principal con layout adaptativo */}
             <Box
                 display="flex"
                 width="100%"
@@ -104,6 +117,7 @@ const ProductDetailPage = () => {
                 gap={isMobile ? 4 : 2}
                 py={isMobile ? 3 : 0}
             >
+                {/* Columna izquierda: imagen del producto */}
                 <Box
                     display="flex"
                     justifyContent="center"
@@ -113,6 +127,8 @@ const ProductDetailPage = () => {
                 >
                     <ProductImage product={selectedProduct} />
                 </Box>
+
+                {/* Columna derecha: información y acciones */}
                 <Box
                     display="flex"
                     flexDirection="column"
@@ -122,9 +138,12 @@ const ProductDetailPage = () => {
                     height={isMobile ? 'auto' : '100%'}
                     textAlign={isMobile ? 'center' : 'left'}
                 >
+                    {/* Título del producto */}
                     <Typography variant={isMobile ? "h5" : "h4"} component="h1" fontWeight="bold" mb={2}>
                         {selectedProduct.brand} - {selectedProduct.model}
                     </Typography>
+
+                    {/* Componentes de descripción y acciones */}
                     <ProductDescription product={selectedProduct} />
                     <ProductAction product={selectedProduct} />
                 </Box>
