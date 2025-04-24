@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import ProductListPage from './pages/ProductListPage.jsx';
 import ProductDetailPage from './pages/ProductDetailPage';
 
@@ -8,6 +8,7 @@ const AppRoutes = () => {
         <Routes>
             <Route path="/" element={<ProductListPage />} />
             <Route path="/product/:id" element={<ProductDetailPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );
 };
