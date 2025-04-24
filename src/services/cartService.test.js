@@ -1,3 +1,7 @@
+import axios from 'axios';
+import CartCache from '../utils/cartCache.js';
+import CartService from './cartService.js';
+
 jest.mock('axios', () => ({
   post: jest.fn(),
 }));
@@ -10,10 +14,6 @@ jest.mock('../utils/cartCache.js', () => ({
   removeItemFromCart: jest.fn(),
   clearCart: jest.fn(),
 }));
-
-import axios from 'axios';
-import CartCache from '../utils/cartCache.js';
-import CartService from './cartService.js';
 
 const MOCK_API_RESPONSE = {
   count: 1,

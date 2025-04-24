@@ -1,3 +1,7 @@
+import axios from 'axios';
+import ProductCache from '../utils/productCache.js';
+import ProductService from './productService.js';
+
 jest.mock('axios', () => ({
     get: jest.fn(),
 }));
@@ -10,10 +14,6 @@ jest.mock('../utils/productCache.js', () => ({
     saveProductDetails: jest.fn(),
     clearAllProductsCache: jest.fn(),
 }));
-
-import axios from 'axios';
-import ProductCache from '../utils/productCache.js';
-import ProductService from './productService.js';
 
 const MOCK_PRODUCTS_LIST = [
     {
