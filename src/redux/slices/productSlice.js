@@ -79,6 +79,8 @@ const productSlice = createSlice({
             .addCase(fetchProductById.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.selectedProduct = action.payload;
+                state.searchTerm = "";
+                state.filteredItems = state.items
                 state.error = null;
             })
             .addCase(fetchProductById.rejected, (state, action) => {
