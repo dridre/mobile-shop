@@ -4,6 +4,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import productReducer from './productSlice';
 
 jest.mock('../../services/productService', () => ({
+  init: jest.fn(),
   getAllProducts: jest.fn(),
   getProductById: jest.fn(),
   clearProductsCache: jest.fn(),

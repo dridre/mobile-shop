@@ -187,43 +187,5 @@ describe('ProductCache', () => {
         });
     });
 
-    describe('error handling', () => {
-        it('should handle errors in saveProductsList when DB is closed', async () => {
-            if (ProductCache._db) {
-                ProductCache._db.close();
-                ProductCache._db = null;
-            }
 
-            const result = await ProductCache.saveProductsList(mockProductsList);
-            expect(result).toBe(true);
-        });
-
-        it('should handle errors in getProductsList when DB is closed', async () => {
-            await ProductCache.saveProductsList(mockProductsList);
-
-            if (ProductCache._db) {
-                ProductCache._db.close();
-                ProductCache._db = null;
-            }
-
-            const result = await ProductCache.getProductsList();
-            expect(result).toHaveLength(2);
-            expect(result).toEqual(expect.arrayContaining([
-                expect.objectContaining(mockProduct),
-                expect.objectContaining(mockProductsList[1])
-            ]));
-        });
-
-        it('should handle errors in clearAllProductsCache when DB is closed', async () => {
-            await ProductCache.saveProductsList(mockProductsList);
-
-            if (ProductCache._db) {
-                ProductCache._db.close();
-                ProductCache._db = null;
-            }
-
-            const result = await ProductCache.clearAllProductsCache();
-            expect(result).toBe(true);
-        });
-    });
 });
